@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Suất Chiếu | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        main { padding: 2rem 5%; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Tabs phim */
+        .movie-tabs {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .movie-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1.1rem;
+            background: var(--card-bg);
+            border: 2px solid var(--glass);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .movie-tab img {
+            width: 28px;
+            height: 28px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .movie-tab:hover, .movie-tab.active {
+            border-color: var(--primary);
+            color: white;
+            background: rgba(229, 9, 20, 0.12);
+        }
+
+        /* Bảng suất chiếu */
+        .showtime-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass);
+        }
+
+        .showtime-table th {
+            background: rgba(229, 9, 20, 0.15);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--glass);
+        }
+
+        .showtime-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--glass);
+            vertical-align: middle;
+        }
+
+        .showtime-table tr:last-child td { border-bottom: none; }
+
+        .showtime-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-std { background: rgba(58,123,213,0.2); color: #3a7bd5; }
+        .badge-vip { background: rgba(200,162,23,0.2); color: #c8a217; }
+        .badge-couple { background: rgba(229,116,188,0.2); color: #e574bc; }
+
+        .btn-del {
+            padding: 0.4rem 0.9rem;
+            background: rgba(255,50,50,0.15);
+            color: #ff5555;
+            border: 1px solid rgba(255,50,50,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .btn-del:hover {
+            background: #ff5555;
+            color: white;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+        }
+
+        .empty-state div { font-size: 3rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html" style="text-decoration:none;"><h1>Cine<span>Manager</span></h1></a>
+        </div>
+        <div class="auth-controls">
+            <div id="user-info">
+                Chào, <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
+                <a href="index.html"><button class="secondary">🏠 Trang chủ</button></a>
+                <button onclick="handleLogout()">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="index.html" style="text-decoration: none;">
+                    <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Quay lại</button>
+                </a>
+                <h2 style="margin: 0;">📅 Quản lý Suất Chiếu</h2>
+            </div>
+            <button onclick="openAddModal()" style="background:#1a6bbf; display:flex; align-items:center; gap:0.5rem;">
+                <span>➕</span> Thêm suất chiếu
+            </button>
+        </div>
+
+        <!-- Danh sách phim (tabs) -->
+        <div class="movie-tabs" id="movie-tabs">
+            <div style="color:var(--text-muted)">Đang tải...</div>
+        </div>
+
+        <!-- Bảng suất chiếu -->
+        <div id="showtime-container">
+            <div class="empty-state"><div>🎬</div><p>Chọn một bộ phim để xem suất chiếu</p></div>
+        </div>
+    </main>
+
+    <!-- MODAL: THÊM SUẤT CHIẾU -->
+    <div id="add-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddModal()">&times;</span>
+            <h2>📅 Thêm Suất Chiếu</h2>
+            <form id="add-showtime-form" style="margin-top:1.5rem;">
+                <div class="form-group">
+                    <label>Chọn phim</label>
+                    <select id="st-movie" style="width:100%; padding:0.8rem; background:#111; color:white; border:1px solid var(--glass); border-radius:8px; outline:none;"></select>
+                </div>
+                <div class="form-group">
+                    <label>Chọn phòng</label>
+                    <select id="st-room" style="width:100%; padding:0.8rem; background:#111; color:white; border:1px solid var(--glass); border-radius:8px; outline:none;"></select>
+                </div>
+                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="st-date" required></div>
+                <div class="form-group"><label>Giờ chiếu</label><input type="time" id="st-time" required></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+                    <div class="form-group"><label>Giá Thường (đ)</label><input type="number" id="st-price-std" value="90000"></div>
+                    <div class="form-group"><label>Giá VIP (đ)</label><input type="number" id="st-price-vip" value="130000"></div>
+                    <div class="form-group"><label>Giá Couple (đ)</label><input type="number" id="st-price-cp" value="220000"></div>
+                </div>
+                <button type="submit" style="width:100%; background:#1a6bbf; margin-top:0.5rem;">Lưu Suất Chiếu</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        let allMovies = [];
+        let currentMovieId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Kiểm tra quyền admin
+            const res = await fetch('api/auth.php?action=check');
+            const data = await res.json();
+            if (!data.isLoggedIn || data.role !== 'admin') {
+                window.location.href = 'index.html'; return;
+            }
+            document.getElementById('display-username').innerText = data.username + ' (Admin)';
+
+            await loadMovies();
+        });
+
+        async function loadMovies() {
+            const res = await fetch('api/movies.php');
+            allMovies = await res.json();
+            const tabs = document.getElementById('movie-tabs');
+
+            if (!allMovies.length) {
+                tabs.innerHTML = '<p style="color:var(--text-muted)">Chưa có phim nào.</p>'; return;
+            }
+
+            tabs.innerHTML = allMovies.map(m => `
+                <div class="movie-tab" id="tab-${m.id}" onclick="selectMovie(${m.id})">
+                    <img src="${m.poster_url || 'https://via.placeholder.com/28x28?text=?'}" alt="${m.title}">
+                    ${m.title}
+                </div>
+            `).join('');
+
+            // Auto chọn phim đầu tiên
+            selectMovie(allMovies[0].id);
+        }
+
+        async function selectMovie(movieId) {
+            currentMovieId = movieId;
+
+            // Update tab active
+            document.querySelectorAll('.movie-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${movieId}`)?.classList.add('active');
+
+            await renderShowtimes(movieId);
+        }
+
+        async function renderShowtimes(movieId) {
+            const res = await fetch(`api/showtimes.php?movie_id=${movieId}&all=1`);
+            const showtimes = await res.json();
+            const movie = allMovies.find(m => m.id == movieId);
+            const container = document.getElementById('showtime-container');
+
+            if (!showtimes.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>🗓️</div>
+                        <p>Chưa có suất chiếu nào cho phim <strong>${movie?.title || ''}</strong></p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="showtime-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Ngày chiếu</th>
+                            <th>Giờ chiếu</th>
+                            <th>Phòng chiếu</th>
+                            <th>Giá Thường</th>
+                            <th>Giá VIP</th>
+                            <th>Giá Couple</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${showtimes.map(st => `
+                            <tr>
+                                <td style="color:var(--text-muted)">#${st.id}</td>
+                                <td>${new Date(st.show_date).toLocaleDateString('vi-VN', {weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'})}</td>
+                                <td style="font-size:1.2rem; font-weight:700; color:var(--primary)">${st.show_time.slice(0,5)}</td>
+                                <td>${st.room_name}</td>
+                                <td><span class="badge badge-std">${Number(st.price_standard).toLocaleString('vi-VN')} đ</span></td>
+                                <td><span class="badge badge-vip">${Number(st.price_vip).toLocaleString('vi-VN')} đ</span></td>
+                                <td><span class="badge badge-couple">${Number(st.price_couple).toLocaleString('vi-VN')} đ</span></td>
+                                <td>
+                                    <button class="btn-del" onclick="deleteShowtime(${st.id})">🗑️ Xóa</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function deleteShowtime(id) {
+            if (!confirm('Xóa suất chiếu này? Tất cả vé liên quan cũng sẽ bị xóa!')) return;
+            const res = await fetch(`api/showtimes.php?id=${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(data.message || 'Đã xóa suất chiếu');
+                if (currentMovieId) renderShowtimes(currentMovieId);
+            } else {
+                showToast(data.error || 'Lỗi khi xóa', 'error');
+            }
+        }
+
+        // --- Modal thêm suất chiếu ---
+        async function openAddModal() {
+            // Load options
+            const movRes = await fetch('api/movies.php');
+            const movies = await movRes.json();
+            document.getElementById('st-movie').innerHTML = movies.map(m => `<option value="${m.id}" ${m.id == currentMovieId ? 'selected' : ''}>${m.title}</option>`).join('');
+
+            const roomRes = await fetch('api/rooms.php');
+            const rooms = await roomRes.json();
+            document.getElementById('st-room').innerHTML = rooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        document.getElementById('add-showtime-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = {
+                movie_id: document.getElementById('st-movie').value,
+                room_id: document.getElementById('st-room').value,
+                show_date: document.getElementById('st-date').value,
+                show_time: document.getElementById('st-time').value,
+                price_standard: document.getElementById('st-price-std').value,
+                price_vip: document.getElementById('st-price-vip').value,
+                price_couple: document.getElementById('st-price-cp').value,
+            };
+            const res = await fetch('api/showtimes.php', {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(data.message || 'Thêm thành công');
+                closeAddModal();
+                document.getElementById('add-showtime-form').reset();
+                // Chuyển sang phim vừa thêm suất chiếu
+                selectMovie(formData.movie_id);
+            } else {
+                showToast(data.error || 'Có lỗi xảy ra', 'error');
+            }
+        };
+    </script>
+</body>
+</html>

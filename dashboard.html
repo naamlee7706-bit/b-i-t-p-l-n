@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Thống Kê | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass);
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 900px) {
+            .dashboard-row { grid-template-columns: 1fr; }
+        }
+        .table-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--glass);
+        }
+        th { color: var(--text-muted); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html" style="text-decoration:none;"><h1>Cine<span>Manager</span></h1></a>
+        </div>
+        <div class="auth-controls">
+            <div id="user-info">
+                Chào Admin, <span id="display-username" style="color: var(--primary); font-weight: bold;"></span>
+                <a href="index.html"><button class="secondary">🏠 Trang chủ</button></a>
+                <button onclick="handleLogout()">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 5%;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <a href="index.html" style="text-decoration: none;">
+                <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Quay lại</button>
+            </a>
+            <h2 style="margin: 0;">📊 Thống kê doanh thu hệ thống</h2>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Tổng doanh thu</h3>
+                <div class="value" id="stat-revenue">0đ</div>
+            </div>
+            <div class="stat-card">
+                <h3>Vé đã bán</h3>
+                <div class="value" id="stat-tickets">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tổng số phim</h3>
+                <div class="value" id="stat-movies">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Người dùng</h3>
+                <div class="value" id="stat-users">0</div>
+            </div>
+        </div>
+
+        <div class="dashboard-row">
+            <div class="table-container">
+                <h3>🎬 Doanh thu theo phim</h3>
+                <table id="table-by-movie">
+                    <thead>
+                        <tr>
+                            <th>Phim</th>
+                            <th>Số vé</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>🕒 Giao dịch gần đây</h3>
+                <table id="table-recent">
+                    <thead>
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Phim</th>
+                            <th>Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authRes = await fetch('api/auth.php?action=check');
+            const authData = await authRes.json();
+            if (!authData.isLoggedIn || authData.role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('display-username').innerText = authData.username;
+
+            loadStats();
+        });
+
+        async function loadStats() {
+            try {
+                // Summary
+                const sumRes = await fetch('api/stats.php?action=summary');
+                const summary = await sumRes.json();
+                document.getElementById('stat-revenue').innerText = summary.total_revenue.toLocaleString('vi-VN') + 'đ';
+                document.getElementById('stat-tickets').innerText = summary.total_tickets;
+                document.getElementById('stat-movies').innerText = summary.total_movies;
+                document.getElementById('stat-users').innerText = summary.total_users;
+
+                // By Movie
+                const movieRes = await fetch('api/stats.php?action=by_movie');
+                const byMovie = await movieRes.json();
+                const movieTbody = document.querySelector('#table-by-movie tbody');
+                movieTbody.innerHTML = byMovie.map(m => `
+                    <tr>
+                        <td>${m.title}</td>
+                        <td>${m.tickets}</td>
+                        <td style="color:var(--primary); font-weight:600;">${Number(m.revenue).toLocaleString('vi-VN')}đ</td>
+                    </tr>
+                `).join('');
+
+                // Recent
+                const recentRes = await fetch('api/stats.php?action=recent');
+                const recent = await recentRes.json();
+                const recentTbody = document.querySelector('#table-recent tbody');
+                recentTbody.innerHTML = recent.map(r => `
+                    <tr>
+                        <td>${r.full_name}</td>
+                        <td>${r.movie_title}</td>
+                        <td>${Number(r.total_price).toLocaleString('vi-VN')}đ</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showToast('Lỗi khi tải dữ liệu thống kê', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

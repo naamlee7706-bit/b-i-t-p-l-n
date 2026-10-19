@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .auth-container {
+            background: rgba(26, 26, 26, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .auth-header p {
+            color: var(--text-muted);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--glass);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>CineManager</h1>
+            <p>Khám phá thế giới điện ảnh</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Đăng nhập</div>
+            <div class="tab" onclick="switchTab('register')">Đăng ký</div>
+        </div>
+
+        <!-- Form Đăng nhập -->
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label>Tên đăng nhập</label>
+                <input type="text" id="login-user" placeholder="Nhập tên đăng nhập của bạn" required>
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="login-pass" placeholder="••••••••" required>
+            </div>
+            <button type="submit" style="width: 100%; margin-top: 1rem;">Đăng nhập ngay</button>
+        </form>
+
+        <!-- Form Đăng ký -->
+        <form id="register-form" class="auth-form">
+            <div class="form-group">
+                <label>Họ và tên</label>
+                <input type="text" id="reg-name" placeholder="Nguyễn Văn A" required>
+            </div>
+            <div class="form-group">
+                <label>Tên đăng nhập</label>
+                <input type="text" id="reg-user" placeholder="username" required>
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="reg-pass" placeholder="••••••••" required>
+            </div>
+            <button type="submit" style="width: 100%; margin-top: 1rem; background: #28a745;">Đăng ký tài khoản</button>
+        </form>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        function switchTab(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if(type === 'login') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('register-form').classList.add('active');
+            }
+        }
+
+        // Xử lý Login
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const res = await fetch('api/auth.php?action=login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: document.getElementById('login-user').value,
+                    password: document.getElementById('login-pass').value
+                })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                showToast('Đăng nhập thành công!');
+                setTimeout(() => window.location.href = 'index.html', 800);
+            } else {
+                showToast(data.error || 'Lỗi đăng nhập', 'error');
+            }
+        };
+
+        // Xử lý Register
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const res = await fetch('api/auth.php?action=register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    full_name: document.getElementById('reg-name').value,
+                    username: document.getElementById('reg-user').value,
+                    password: document.getElementById('reg-pass').value
+                })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                showToast('Đăng ký thành công! Hãy đăng nhập.');
+                switchTab('login');
+            } else {
+                showToast(data.error || 'Lỗi đăng ký', 'error');
+            }
+        };
+    </script>
+</body>
+</html>

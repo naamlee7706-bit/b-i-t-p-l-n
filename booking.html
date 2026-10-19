@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Vé | CineManager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/booking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo"><a href="index.html" style="text-decoration:none;"><h1>Cine<span>Manager</span></h1></a></div>
+        <div class="auth-controls">
+            <div id="user-info">
+                Chào, <span id="display-username" style="color:var(--primary);font-weight:bold;"></span>
+                <a href="my-tickets.html"><button class="secondary">🎫 Vé của tôi</button></a>
+                <button onclick="handleLogout()">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 5%;">
+        <div style="margin-bottom: 2rem;">
+            <a href="index.html" style="text-decoration: none;">
+                <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Thoát đặt vé</button>
+            </a>
+        </div>
+        <div class="steps-bar">
+            <div class="step active" id="step-indicator-1"><span>1</span> Suất chiếu</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-indicator-2"><span>2</span> Chọn ghế</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-indicator-3"><span>3</span> Combo</div>
+            <div class="step-line"></div>
+            <div class="step" id="step-indicator-4"><span>4</span> Xác nhận</div>
+        </div>
+
+        <div id="step-1" class="step-content active">
+            <h2>🎬 Chọn Suất Chiếu</h2>
+            <div id="movie-info-banner" class="movie-banner"></div>
+            <p style="color: #ccc; margin-top: 10px; font-size: 14px;">
+                <i class="fa-solid fa-location-dot" style="color: #ff3333; margin-right: 5px;"></i>
+                Địa chỉ: TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội
+            </p>
+            <div id="showtimes-grid" class="showtimes-grid">
+                <p style="color:var(--text-muted)">Đang tải suất chiếu...</p>
+            </div>
+        </div>
+
+        <div id="step-2" class="step-content">
+            <div class="step2-header">
+                <div>
+                    <h2>🪑 Chọn Ghế Ngồi</h2>
+                    <p id="selected-showtime-info" style="color:var(--text-muted); margin-top: 0.25rem;"></p>
+                </div>
+                <div class="hold-timer-box hidden" id="timer-box">
+                    ⏳ Thời gian giữ ghế: <span id="countdown" class="timer-red">05:00</span>
+                </div>
+            </div>
+
+            <div class="screen-container">
+                <div class="screen">MÀN HÌNH</div>
+            </div>
+
+            <div class="seat-legend">
+                <div class="legend-item"><div class="legend-box standard"></div> Thường</div>
+                <div class="legend-item"><div class="legend-box vip"></div> VIP</div>
+                <div class="legend-item"><div class="legend-box couple"></div> Couple</div>
+                <div class="legend-item"><div class="legend-box booked"></div> Đã đặt</div>
+                <div class="legend-item"><div class="legend-box held"></div> Đang giữ</div>
+                <div class="legend-item"><div class="legend-box selected"></div> Đang chọn</div>
+            </div>
+
+            <div id="seat-map" class="seat-map"></div>
+
+            <div class="selected-seats-info">
+                <p>Ghế đã chọn: <span id="selected-seats-text" style="color:var(--primary)">Chưa có</span></p>
+                <p>Tạm tính: <span id="seats-subtotal" style="color:var(--primary); font-weight:bold">0 đ</span></p>
+                <button id="btn-go-combo" class="hidden" onclick="goToStep(3)">Tiếp tục → Chọn Combo</button>
+            </div>
+        </div>
+
+        <div id="step-3" class="step-content">
+            <h2>🍿 Chọn Combo Bắp Nước</h2>
+            <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Không bắt buộc. Bạn có thể bỏ qua bước này.</p>
+            <div id="combos-grid" class="combos-grid"></div>
+            <div style="margin-top:2rem; display:flex; justify-content:space-between;">
+                <button class="secondary" onclick="goToStep(2)">← Quay lại</button>
+                <button onclick="goToStep(4)">Tiếp tục → Xác nhận</button>
+            </div>
+        </div>
+
+        <div id="step-4" class="step-content">
+            <h2>✅ Xác Nhận Đặt Vé</h2>
+            <div class="confirm-card">
+                <div id="confirm-movie-info"></div>
+                <hr style="border-color: var(--glass); margin: 1rem 0;">
+                <div id="confirm-seats-info"></div>
+                <div id="confirm-combo-info"></div>
+
+                <div class="confirm-section payment-box" style="background: rgba(255,255,255,0.05); border: 1px dashed var(--glass); text-align: center; padding: 1.5rem; margin: 1rem 0;">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem;">💳 Quét mã Thanh toán</h3>
+                    <div id="payment-qr-container"></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Vui lòng quét mã và thanh toán <br> <strong><span id="payment-amount">0</span> đ</strong></p>
+                </div>
+
+                <hr style="border-color: var(--glass); margin: 1rem 0;">
+                <div class="confirm-total">
+                    Tổng cộng: <span id="confirm-total-price" style="color:var(--primary); font-size:1.5rem; font-weight:800;">0 đ</span>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+                    <button class="secondary" onclick="goToStep(3)" style="flex:1;">← Quay lại</button>
+                    <button id="btn-confirm" style="flex:2; background:#28a745;" onclick="confirmBooking()">🎫 Xác Nhận & Đặt Vé</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-success" class="step-content success-screen">
+            <div class="success-icon">🎉</div>
+            <h2>Đặt Vé Thành Công!</h2>
+            <p>Cảm ơn bạn đã sử dụng dịch vụ của CineManager.</p>
+
+            <div id="ticket-qr-container" style="background: white; padding: 10px; display: inline-block; border-radius: 10px; margin: 1.5rem 0;"></div>
+
+            <div id="success-booking-id" style="font-weight: bold; margin-bottom: 1.5rem; color: var(--primary);">Mã vé: #...</div>
+            <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center;">
+                <a href="my-tickets.html"><button>🎫 Xem vé của tôi</button></a>
+                <a href="index.html"><button class="secondary">← Về trang chủ</button></a>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/booking.js"></script>
+</body>
+</html>
