@@ -1,0 +1,344 @@
+/* ===== BOOKING PAGE STYLES ===== */
+
+/* Steps Bar */
+.steps-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    gap: 0;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.step span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    transition: var(--transition);
+}
+
+.step.active { color: var(--primary); }
+.step.active span { background: var(--primary); }
+.step.done span { background: #28a745; color: white; }
+.step.done { color: #28a745; }
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--glass);
+    margin: 0 0.75rem;
+    max-width: 80px;
+}
+
+/* Step Content */
+.step-content { display: none; }
+.step-content.active { display: block; }
+
+/* Movie Banner */
+.movie-banner {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--glass);
+}
+
+.movie-banner img {
+    width: 80px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.movie-banner h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.movie-banner p { color: var(--text-muted); font-size: 0.9rem; }
+
+/* Showtimes */
+.showtimes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.showtime-card {
+    background: var(--card-bg);
+    border: 2px solid var(--glass);
+    border-radius: 12px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.showtime-card:hover, .showtime-card.selected {
+    border-color: var(--primary);
+    background: rgba(229, 9, 20, 0.1);
+    transform: translateY(-4px);
+}
+
+.showtime-card .time {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.showtime-card .date, .showtime-card .room {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+.showtime-card .price-tag {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Seat Map */
+.step2-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.hold-timer-box {
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.timer-red { color: var(--primary); font-size: 1.2rem; }
+
+.screen-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.screen {
+    display: inline-block;
+    background: linear-gradient(to bottom, #ffffff22, transparent);
+    border-top: 4px solid rgba(255,255,255,0.5);
+    width: 70%;
+    padding: 0.5rem;
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    border-radius: 4px 4px 0 0;
+}
+
+.seat-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.legend-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+}
+
+.legend-box.standard { background: #3a7bd5; }
+.legend-box.vip { background: #c8a217; }
+.legend-box.couple { background: #e574bc; }
+.legend-box.booked { background: #555; }
+.legend-box.held { background: #ff8c00; }
+.legend-box.selected { background: var(--primary); }
+
+/* Seat Map */
+.seat-map {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.seat-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.row-label {
+    width: 24px;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.seat {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px 6px 4px 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: white;
+    transition: var(--transition);
+    position: relative;
+}
+
+.seat:hover:not(.booked):not(.held-other) { transform: scale(1.15); }
+
+.seat.standard { background: #2a5fa5; border-color: #3a7bd5; }
+.seat.vip { background: #9a7a10; border-color: #c8a217; }
+.seat.couple { background: #b0458e; border-color: #e574bc; }
+.seat.booked { background: #444; border-color: #555; cursor: not-allowed; opacity: 0.6; }
+.seat.held-other { background: #a85d00; border-color: #ff8c00; cursor: not-allowed; }
+.seat.my-hold { background: #cc6600; border-color: #ff8c00; }
+.seat.selected { background: var(--primary) !important; border-color: #ff3333 !important; }
+
+.seat-aisle { width: 20px; }
+
+/* Selected Seats Info */
+.selected-seats-info {
+    background: var(--card-bg);
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Combos */
+.combos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.combo-card {
+    background: var(--card-bg);
+    border: 2px solid var(--glass);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.combo-card:hover { border-color: #28a745; transform: translateY(-4px); }
+.combo-card.selected { border-color: #28a745; background: rgba(40,167,69,0.12); }
+
+.combo-card .combo-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.combo-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+.combo-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.75rem; }
+.combo-card .combo-price { color: #28a745; font-weight: 700; font-size: 1.1rem; }
+
+.combo-qty {
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,0,0,0.5);
+    border-radius: 20px;
+    padding: 0.25rem 0.5rem;
+}
+
+.combo-qty button {
+    padding: 0.1rem 0.5rem;
+    font-size: 1rem;
+    line-height: 1;
+    background: transparent;
+    border: 1px solid var(--glass);
+    border-radius: 50%;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+/* Confirm Card */
+.confirm-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.confirm-card h3 { margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+.confirm-card p { margin-bottom: 0.4rem; }
+.confirm-total { font-size: 1.1rem; text-align: right; }
+
+/* Success Screen */
+.success-screen {
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.success-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: bounce 1s ease infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-10px); }
+}
+
+/* My Tickets Page */
+.ticket-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass);
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.ticket-card:hover { border-color: var(--primary); }
+
+.ticket-poster { width: 100px; object-fit: cover; flex-shrink: 0; }
+
+.ticket-info { padding: 1.25rem; flex: 1; }
+.ticket-info h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.ticket-info p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem; }
+
+.ticket-price { padding: 1.25rem; text-align: right; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; }
+.ticket-price strong { color: var(--primary); font-size: 1.2rem; }
